@@ -1,0 +1,38 @@
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Runtime outputs — agent-generated, not committed
+workspace/
+data/sessions/
+data/chroma/
+
+# Render / cloud
+uploads/
+*.log
+
+# Sample data (large)
+data/sample_datasets/*.csv
+data/sample_datasets/*.parquet
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/

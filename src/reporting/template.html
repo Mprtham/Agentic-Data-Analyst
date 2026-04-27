@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <style>
+    :root {
+      --accent: #1a56db;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --bg: #ffffff;
+      --surface: #f9fafb;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    header {
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 20px;
+      margin-bottom: 32px;
+    }
+    header h1 { font-size: 1.8rem; color: var(--accent); }
+    header .meta { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 0.8rem;
+      margin-left: 8px;
+    }
+    .quality-badge {
+      background: {% if quality_score >= 80 %}#16a34a{% elif quality_score >= 60 %}#d97706{% else %}#dc2626{% endif %};
+    }
+    h2 { font-size: 1.3rem; color: var(--accent); margin: 32px 0 12px; border-left: 4px solid var(--accent); padding-left: 10px; }
+    h3 { font-size: 1.05rem; margin: 20px 0 8px; }
+    p { margin: 8px 0; }
+    ul, ol { margin: 8px 0 8px 20px; }
+    li { margin: 4px 0; }
+    .summary-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .summary-box h2 { margin-top: 0; }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .metric-card .value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .metric-card .label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+    th { background: var(--surface); border: 1px solid var(--border); padding: 8px 12px; text-align: left; font-weight: 600; }
+    td { border: 1px solid var(--border); padding: 8px 12px; }
+    tr:nth-child(even) td { background: var(--surface); }
+    code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 0.85rem; }
+    pre code { display: block; padding: 16px; overflow-x: auto; }
+    .warning { background: #fef3c7; border-left: 4px solid #d97706; padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 12px 0; }
+    .artifact-link { display: inline-block; margin: 4px 8px 4px 0; padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; text-decoration: none; color: var(--accent); font-size: 0.85rem; }
+    .artifact-link:hover { background: var(--accent); color: white; }
+    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; text-align: center; }
+    @media print {
+      body { padding: 20px; }
+      a { color: var(--text); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>{{ title }}</h1>
+    <div class="meta">
+      Session: {{ session_id }} &nbsp;·&nbsp;
+      Generated: {{ generated_at }} &nbsp;·&nbsp;
+      Dataset: {{ dataset_source }}
+      <span class="badge quality-badge">Quality: {{ quality_score }}/100</span>
+    </div>
+  </header>
+
+  <div class="summary-box">
+    <h2>Business Question</h2>
+    <p>{{ business_question }}</p>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="value">{{ row_count }}</div>
+      <div class="label">Total Rows</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">{{ col_count }}</div>
+      <div class="label">Columns</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">{{ quality_score }}</div>
+      <div class="label">Quality Score</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">{{ findings_count }}</div>
+      <div class="label">Key Findings</div>
+    </div>
+  </div>
+
+  {% if executive_summary %}
+  <h2>Executive Summary</h2>
+  {{ executive_summary | safe }}
+  {% endif %}
+
+  {% if findings %}
+  <h2>Key Findings</h2>
+  <ul>
+    {% for finding in findings %}
+    <li>{{ finding }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if quality_warnings %}
+  <h2>Data Quality Notes</h2>
+  {% for warning in quality_warnings %}
+  <div class="warning">{{ warning }}</div>
+  {% endfor %}
+  {% endif %}
+
+  {% if analysis_narrative %}
+  <h2>Analysis</h2>
+  {{ analysis_narrative | safe }}
+  {% endif %}
+
+  {% if artifacts %}
+  <h2>Charts & Outputs</h2>
+  {% for artifact in artifacts %}
+  <a class="artifact-link" href="{{ artifact }}" target="_blank">📊 {{ artifact | basename }}</a>
+  {% endfor %}
+  {% endif %}
+
+  {% if methodology %}
+  <h2>Methodology</h2>
+  {{ methodology | safe }}
+  {% endif %}
+
+  {% if limitations %}
+  <h2>Limitations & Caveats</h2>
+  {{ limitations | safe }}
+  {% endif %}
+
+  <footer>
+    Generated by Analyst Agent · Claude API ({{ model }}) · {{ generated_at }}
+  </footer>
+</body>
+</html>
