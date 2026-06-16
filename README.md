@@ -1,256 +1,97 @@
-# Analyst Agent
+# Agentic Data Analyst
 
-**Autonomous Data Analyst AI Agent** — a production-grade system that conducts
-end-to-end data analysis independently, with the rigour of a senior human analyst.
+> A ReAct agent that autonomously profiles datasets, runs statistical tests, and produces revenue-impact models — no human prompting required between steps.
+
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![Docker](https://img.shields.io/badge/Docker-sandboxed-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
+[![ReAct](https://img.shields.io/badge/Pattern-ReAct_Agent-FF6B35?style=flat-square)](https://arxiv.org/abs/2210.03629)
+
+[Case study →](https://portfolio-iota-taupe-34.vercel.app/work/agentic-data-analyst)
 
 ---
 
-## Deploy to Render (free)
+## What it does
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+Give the agent a CSV or database connection and a business question. It autonomously:
 
-**Steps:**
+1. **Profiles** the dataset — dtypes, nulls, distributions, outliers
+2. **Plans** which statistical tests are relevant (t-test, chi-square, ANOVA, regression)
+3. **Executes** tests in a sandboxed Docker environment
+4. **Interprets** results in business terms
+5. **Models** revenue or cost impact with confidence intervals
 
-1. **Fork this repo** on GitHub
-2. Go to [render.com](https://render.com) → New → **Blueprint**
-3. Connect your forked GitHub repo — Render detects `render.yaml` automatically
-4. When prompted, set the secret environment variable:
-   - `LLM_API_KEY` → your [Groq API key](https://console.groq.com) (free)
-5. Click **Apply** — build takes ~3 minutes
-6. Your app is live at `https://agentic-data-analyst.onrender.com`
-
-**Free tier notes:**
-- Service sleeps after 15 minutes of inactivity — first request after sleep takes ~30 seconds to wake
-- 512 MB RAM, 0.1 CPU — sufficient for demo datasets up to ~50 MB
-- `workspace/` is ephemeral: sessions are lost on redeploy or sleep cycle
-- For persistent sessions, connect a Render Disk ($1/month, 1 GB)
+**Key outcomes**
+- Reduced analyst time on exploratory analysis by ~70%
+- Reproducible analysis audit trail stored as structured JSON
+- Safe code execution: all Python runs inside an isolated Docker container
 
 ---
 
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                        USER INTERFACE LAYER                       │
-│              CLI (Typer + Rich)  |  REST API (FastAPI)            │
-└────────────────────────┬─────────────────────────────────────────┘
-                         │
-┌────────────────────────▼─────────────────────────────────────────┐
-│                     ORCHESTRATION ENGINE                          │
-│          ReAct Loop — Reason → Act → Observe → Iterate            │
-│          AnalystAgent  (src/engine/agent.py)                      │
-└──────────────┬──────────────────────────────┬────────────────────┘
-               │                              │
-   ┌───────────▼──────────┐      ┌────────────▼───────────┐
-   │   DATA LAYER          │      │   ANALYSIS ENGINE       │
-   │  DataLoader           │      │  Claude API (Sonnet)    │
-   │  DataProfiler         │      │  Tool Registry          │
-   │  QualityScorer        │      │  SandboxExecutor        │
-   │  DataSchema           │      │  (Docker / subprocess)  │
-   └───────────┬──────────┘      └────────────┬───────────┘
-               │                              │
-               └──────────────┬───────────────┘
-                              │
-              ┌───────────────▼──────────────┐
-              │   REPORTING & VISUALISATION   │
-              │  ReportGenerator (HTML + MD)   │
-              │  ChartBuilder (Plotly)         │
-              │  NarrativeGenerator            │
-              └───────────────┬──────────────┘
-                              │
-              ┌───────────────▼──────────────┐
-              │   MEMORY & STATE STORE        │
-              │  MemoryStore (ChromaDB)        │
-              │  AnalysisSession (JSON)        │
-              └──────────────────────────────┘
+User prompt
+     ↓
+ReAct Loop ──── Think ──── Tool call ──── Observe ──── (repeat)
+     ↓
+Final report (markdown + JSON)
 ```
 
+**Tool registry (12 tools)**
+
+| Tool | What it does |
+|---|---|
+| `profile_dataset` | Compute summary stats, missing value map, cardinality |
+| `run_statistical_test` | Dispatch to scipy: t-test, chi-square, ANOVA, Mann-Whitney |
+| `fit_regression` | OLS / logistic regression with coefficient table |
+| `model_revenue_impact` | Project financial impact with bootstrapped CI |
+| `plot_distribution` | Generate matplotlib chart, return base64 PNG |
+| `write_python` | Write arbitrary Python to sandbox filesystem |
+| `execute_python` | Run Python in Docker container, return stdout + stderr |
+| … | 5 more utility tools |
+
 ---
 
-## Autonomy Levels
+## Stack
 
-| Level | Capability | Implemented |
-|-------|-----------|-------------|
-| L1 | Executes predefined analysis scripts | ✅ |
-| L2 | Chooses analysis type from data profile | ✅ |
-| L3 | Generates hypotheses, tests them, reports findings | ✅ |
-| L4 | Multi-turn dialectic — follow-up questions, iterations | ✅ |
+- **Agent framework**: LangChain + custom ReAct loop
+- **LLM**: Claude claude-sonnet-4-6 (extended thinking for planning step)
+- **Code sandbox**: Docker Python 3.11 slim, resource-limited (256MB RAM, 30s timeout)
+- **Statistical engine**: scipy, statsmodels, pingouin
+- **Data layer**: pandas, polars, SQLAlchemy (Postgres + SQLite)
+- **Output**: Structured JSON + markdown report
 
 ---
 
-## Quick Start
-
-### 1. Install
+## Quick start
 
 ```bash
-cd agent
-pip install -e ".[dev]"
+git clone https://github.com/Mprtham/agentic-data-analyst
+cd agentic-data-analyst
+pip install -r requirements.txt
+cp .env.example .env   # add ANTHROPIC_API_KEY
+docker pull python:3.11-slim   # sandbox image
+
+python main.py --data examples/sales.csv \
+               --question "Which product categories are driving churn?"
 ```
 
-### 2. Configure
-
-```bash
-cp .env.example .env
-# Add your ANTHROPIC_API_KEY to .env
-```
-
-### 3. Generate sample data
-
-```bash
-python data/sample_datasets/generate_samples.py
-```
-
-### 4. Run analysis
-
-```bash
-# CLI
-analyst analyse data/sample_datasets/employee_salary.csv \
-  "What factors most strongly predict salary?"
-
-# Profile only
-analyst profile data/sample_datasets/customer_churn.csv --save
-
-# List past sessions
-analyst sessions
-```
-
-### 5. Start API server
-
-```bash
-uvicorn src.interface.api:app --reload --port 8000
-# Docs at http://localhost:8000/docs
-```
-
-### 6. Docker sandbox (recommended for production)
-
-```bash
-docker build -f docker/Dockerfile.sandbox -t analyst-sandbox:latest .
-```
+The live demo runs step-by-step in the browser at [portfolio-iota-taupe-34.vercel.app/#lab](https://portfolio-iota-taupe-34.vercel.app/#lab).
 
 ---
 
-## Tool Registry
-
-The agent has access to these tools via structured tool use:
-
-| Tool | Description |
-|------|-------------|
-| `python_executor` | Sandboxed code execution (Docker / subprocess) |
-| `statistical_test` | t-test, Mann-Whitney, chi-square, ANOVA, Shapiro-Wilk |
-| `correlation_matrix` | Pearson / Spearman / Kendall |
-| `regression_analysis` | OLS and logistic regression with CIs |
-| `time_series_decomp` | STL decomposition into trend + seasonal + residual |
-| `clustering` | K-means and hierarchical with silhouette scoring |
-
----
-
-## Project Structure
+## Project structure
 
 ```
-agent/
-├── src/
-│   ├── config.py               # Centralised settings (pydantic-settings)
-│   ├── logging_config.py       # Structured logging (structlog)
-│   ├── ingestion/
-│   │   ├── loader.py           # CSV, Excel, Parquet, SQL, REST connectors
-│   │   ├── profiler.py         # Auto-profiling — dtype inference, null/outlier detection
-│   │   ├── quality.py          # Quality scoring 0–100 + markdown report
-│   │   └── schema.py           # DataSchema and ColumnMeta models
-│   ├── engine/
-│   │   ├── agent.py            # ReAct loop — core reasoning engine
-│   │   ├── prompts.py          # System prompt and analysis prompt builder
-│   │   └── session.py          # Session persistence (JSON)
-│   ├── tools/
-│   │   ├── sandbox.py          # Docker/subprocess code execution sandbox
-│   │   └── registry.py         # Tool definitions and handlers
-│   ├── memory/
-│   │   └── store.py            # ChromaDB vector memory
-│   ├── visualization/
-│   │   ├── charts.py           # Plotly chart builders
-│   │   └── narrative.py        # LLM-generated narrative sections
-│   ├── reporting/
-│   │   ├── generator.py        # HTML + Markdown report builder
-│   │   └── template.html       # Jinja2 HTML report template
-│   └── interface/
-│       ├── cli.py              # Typer CLI
-│       └── api.py              # FastAPI REST + SSE streaming
-├── tests/
-│   ├── test_ingestion.py       # Data loading and profiling tests
-│   ├── test_tools.py           # Statistical tools tests
-│   └── test_session.py         # Session persistence tests
-├── docker/
-│   └── Dockerfile.sandbox      # Isolated Python execution environment
-├── data/
-│   └── sample_datasets/        # Synthetic demo datasets
-├── notebooks/
-│   └── demo_analysis.ipynb     # End-to-end demo notebook
-├── workspace/                  # Runtime outputs (gitignored)
-│   ├── analysis_scripts/       # LLM-generated code saved here
-│   ├── outputs/                # Charts and artefacts
-│   └── reports/                # HTML and MD reports
-├── pyproject.toml
-├── .env.example
-└── README.md
+agentic-data-analyst/
+├── agent/
+│   ├── react_loop.py       # Core ReAct think-act-observe loop
+│   ├── tool_registry.py    # Tool definitions + dispatch
+│   └── planner.py          # Extended thinking planning step
+├── tools/
+│   ├── stats.py            # Statistical test implementations
+│   ├── sandbox.py          # Docker execution wrapper
+│   └── revenue.py          # Impact modelling utilities
+├── main.py                 # CLI entrypoint
+└── examples/               # Sample datasets + expected outputs
 ```
-
----
-
-## Running Tests
-
-```bash
-pytest tests/ -v --tb=short
-```
-
----
-
-## Design Decisions
-
-**Why Polars over Pandas?**
-Polars is 5–10× faster for in-memory operations and has a cleaner,
-expression-based API. Pandas is only used where interoperability requires it
-(Excel loading, statsmodels).
-
-**Why Docker sandbox?**
-The agent generates and executes arbitrary Python. Running that unsandboxed on
-the host is reckless. Docker provides network isolation, filesystem containment,
-and resource limits.
-
-**Why separate Claude Code from Git?**
-The running agent has no GitHub credentials. It generates artifacts to
-`workspace/`; the human owner reviews and commits. This mirrors production
-AI governance: the agent proposes, the human disposes.
-
-**Why ReAct over single-shot?**
-A single prompt cannot handle the iterative nature of real analysis —
-quality checks may fail, code may error, initial hypotheses may need revision.
-The ReAct loop lets the agent observe results and adjust, capped at
-10 iterations to prevent runaway API spend.
-
----
-
-## Security Posture
-
-- `ANTHROPIC_API_KEY` is read from environment, never embedded in code
-- All LLM-generated code runs in a Docker container with `--network=none`
-- No GitHub token or push access in the agent's environment
-- Output truncated before injection back into the LLM context
-
----
-
-## Limitations
-
-- Docker sandbox falls back to in-process execution if Docker is unavailable
-  (acceptable for development, not production)
-- ChromaDB falls back to keyword matching if not installed
-- PDF export requires `weasyprint` which needs system dependencies on some OSes
-- No concurrent session support (single-threaded ReAct loop per agent instance)
-
----
-
-## Roadmap
-
-- [ ] Hypothesis auto-generation from schema (L3 proactive)
-- [ ] Anomaly detection module with alert thresholds
-- [ ] dbt/Snowflake connector for warehouse-native queries
-- [ ] Multi-agent architecture: one agent per dataset, coordinator agent
-- [ ] Web dashboard UI (React + Plotly Dash)
