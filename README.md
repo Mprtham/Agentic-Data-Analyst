@@ -55,7 +55,7 @@ Final report (markdown + JSON)
 ## Stack
 
 - **Agent framework**: LangChain + custom ReAct loop
-- **LLM**: Claude claude-sonnet-4-6 (extended thinking for planning step)
+- **LLM**: Groq API / Llama (llama-3.3-70b-versatile, configurable via env)
 - **Code sandbox**: Docker Python 3.11 slim, resource-limited (256MB RAM, 30s timeout)
 - **Statistical engine**: scipy, statsmodels, pingouin
 - **Data layer**: pandas, polars, SQLAlchemy (Postgres + SQLite)

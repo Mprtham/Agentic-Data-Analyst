@@ -39,17 +39,14 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-  /* ── Imports ── */
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-  /* ── Reset & Base ── */
   html, body, [class*="css"] {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     line-height: 1.6;
   }
 
-  /* ── Hide Streamlit chrome — preserve sidebar toggle ── */
-  /* Do NOT hide `header` — it contains the sidebar collapse/expand button */
+  /* ── Streamlit chrome: hide menu/footer but NEVER hide sidebar toggle ── */
   #MainMenu { visibility: hidden; }
   footer { visibility: hidden; }
   .stDeployButton { display: none; }
@@ -57,9 +54,11 @@ st.markdown("""
   [data-testid="stHeader"] { background: transparent !important; border: none !important; }
   [data-testid="stDecoration"] { display: none !important; }
 
-  /* ── Sidebar toggle button — keep on-brand when sidebar is collapsed ── */
+  /* ── Sidebar toggle: belt-and-braces visibility guarantee ── */
   [data-testid="stSidebarCollapsedControl"] {
     visibility: visible !important;
+    display: flex !important;
+    opacity: 1 !important;
     background: #1e293b !important;
     border-right: 1px solid #334155 !important;
   }
@@ -72,22 +71,15 @@ st.markdown("""
   }
 
   /* ── App background ── */
-  .stApp {
-    background: #0f172a;
-    color: #f1f5f9;
-  }
+  .stApp { background: #0f172a; color: #f1f5f9; }
 
   /* ── Sidebar ── */
   [data-testid="stSidebar"] {
     background: #1e293b !important;
     border-right: 1px solid #334155;
   }
-  [data-testid="stSidebar"] * {
-    color: #e2e8f0 !important;
-  }
-  [data-testid="stSidebar"] .stMarkdown p {
-    color: #94a3b8 !important;
-  }
+  [data-testid="stSidebar"] * { color: #e2e8f0 !important; }
+  [data-testid="stSidebar"] .stMarkdown p { color: #94a3b8 !important; }
   [data-testid="stSidebar"] label {
     color: #cbd5e1 !important;
     font-size: 0.78rem !important;
@@ -95,21 +87,29 @@ st.markdown("""
     letter-spacing: 0.05em !important;
     text-transform: uppercase !important;
   }
-  [data-testid="stSidebar"] hr {
-    border-color: #334155 !important;
-  }
+  [data-testid="stSidebar"] hr { border-color: #334155 !important; }
 
   /* ── File uploader ── */
   [data-testid="stFileUploader"] > div {
     border: 2px dashed #6366f1 !important;
     border-radius: 12px !important;
-    background: rgba(99, 102, 241, 0.08) !important;
+    background: rgba(99,102,241,0.08) !important;
     transition: all 0.2s ease;
-    padding: 1.2rem !important;
+    padding: 1rem !important;
   }
   [data-testid="stFileUploader"] > div:hover {
     border-color: #818cf8 !important;
-    background: rgba(99, 102, 241, 0.14) !important;
+    background: rgba(99,102,241,0.14) !important;
+  }
+  [data-testid="stFileUploader"] label {
+    color: #e2e8f0 !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+  }
+  [data-testid="stFileUploader"] small,
+  [data-testid="stFileUploader"] span {
+    color: #94a3b8 !important;
+    font-size: 0.78rem !important;
   }
 
   /* ── Text input ── */
@@ -126,6 +126,11 @@ st.markdown("""
     border-color: #6366f1 !important;
     box-shadow: 0 0 0 3px rgba(99,102,241,0.25) !important;
   }
+  [data-testid="stTextInput"] label {
+    color: #94a3b8 !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+  }
 
   /* ── Buttons ── */
   .stButton > button {
@@ -138,7 +143,7 @@ st.markdown("""
   .primary-btn > button {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
     color: #ffffff !important;
-    padding: 0.6rem 1.2rem !important;
+    padding: 0.65rem 1.2rem !important;
     box-shadow: 0 4px 14px rgba(99,102,241,0.35) !important;
   }
   .primary-btn > button:hover {
@@ -194,49 +199,113 @@ st.markdown("""
     margin-top: 0.3rem;
   }
 
-  /* ── Hero section ── */
-  .hero {
-    padding: 2rem 0 1.5rem;
+  /* ── Hero band (always visible, compact) ── */
+  .hero-band {
+    padding: 1.8rem 0 1.4rem;
     border-bottom: 1px solid #334155;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
   }
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.1rem;
     font-weight: 800;
     color: #f1f5f9;
-    line-height: 1.15;
-    margin: 0 0 0.5rem;
-    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.03em;
   }
-  .hero-title span {
+  .hero-title .gr {
     background: linear-gradient(135deg, #818cf8, #6366f1);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .hero-subtitle {
+  .hero-tagline {
+    font-size: 1rem;
+    color: #cbd5e1;
+    margin: 0;
+    font-weight: 400;
+    max-width: 680px;
+    line-height: 1.6;
+  }
+
+  /* ── Landing page body ── */
+  .opening-para {
     font-size: 0.95rem;
-    color: #94a3b8;
-    margin: 0 0 1.2rem;
-    max-width: 580px;
+    color: #cbd5e1;
+    line-height: 1.85;
+    max-width: 820px;
+    margin: 1.8rem 0 1.6rem;
   }
-  .hero-pills {
+  .info-col {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 1.3rem 1.4rem 1.4rem;
+  }
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #6366f1;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.85rem;
+  }
+  .check-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .check-item {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    align-items: flex-start;
+    gap: 0.55rem;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin-bottom: 0.6rem;
+    line-height: 1.5;
   }
-  .hero-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    background: rgba(99,102,241,0.12);
-    border: 1px solid rgba(99,102,241,0.28);
-    border-radius: 999px;
-    padding: 0.3rem 0.8rem;
-    font-size: 0.78rem;
-    font-weight: 600;
+  .check-item .tick {
+    color: #10b981;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    margin-top: 0.02rem;
+  }
+  .check-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #6366f1;
+    flex-shrink: 0;
+    margin-top: 0.48rem;
+  }
+  .outcomes-bar {
+    background: rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 12px;
+    padding: 1rem 1.4rem;
+    margin: 1.4rem 0 0;
+    font-size: 0.88rem;
     color: #a5b4fc;
-    white-space: nowrap;
+    line-height: 1.65;
+  }
+
+  /* ── Main-body upload zone ── */
+  .upload-zone-header {
+    text-align: center;
+    padding: 1.8rem 0 0.4rem;
+  }
+  .upload-zone-icon { font-size: 2.4rem; display: block; margin-bottom: 0.45rem; }
+  .upload-zone-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 0 0 0.2rem;
+  }
+  .upload-zone-hint {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-bottom: 1.1rem;
   }
 
   /* ── Cold-start notice ── */
@@ -248,11 +317,12 @@ st.markdown("""
     font-size: 0.72rem;
     color: #94a3b8;
     line-height: 1.55;
-    margin-top: 1.2rem;
+    margin-top: 1.1rem;
+    text-align: left;
   }
   .cold-start-notice strong { color: #f59e0b; font-weight: 600; }
 
-  /* ── Session cards in sidebar ── */
+  /* ── Session cards ── */
   .session-card {
     background: #0f172a;
     border: 1px solid #334155;
@@ -275,10 +345,7 @@ st.markdown("""
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .session-meta {
-    font-size: 0.7rem;
-    color: #94a3b8;
-  }
+  .session-meta { font-size: 0.7rem; color: #94a3b8; }
 
   /* ── Badges ── */
   .badge {
@@ -350,15 +417,10 @@ st.markdown("""
     margin-top: 0.4rem;
     text-align: center;
   }
-  .step-connector {
-    flex: 1;
-    height: 2px;
-    background: #334155;
-    margin-top: -18px;
-  }
+  .step-connector { flex: 1; height: 2px; background: #334155; margin-top: -18px; }
   .step-connector.done { background: #10b981; }
 
-  /* ── Section headers ── */
+  /* ── Section headers (used in analysis / report) ── */
   .section-header {
     display: flex;
     align-items: center;
@@ -374,49 +436,7 @@ st.markdown("""
     margin: 0;
   }
 
-  /* ── Empty state ── */
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-  .empty-icon {
-    font-size: 3.5rem;
-    margin-bottom: 1.2rem;
-    display: block;
-  }
-  .empty-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #f1f5f9;
-    margin-bottom: 0.5rem;
-  }
-  .empty-subtitle {
-    font-size: 0.9rem;
-    color: #94a3b8;
-    margin-bottom: 2rem;
-  }
-  .feature-list {
-    display: inline-flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    text-align: left;
-    margin: 0 auto;
-  }
-  .feature-item {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.85rem;
-    color: #94a3b8;
-  }
-  .feature-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #6366f1;
-    flex-shrink: 0;
-  }
-
-  /* ── Chart grid ── */
+  /* ── Chart captions ── */
   .chart-caption {
     font-size: 0.72rem;
     color: #94a3b8;
@@ -425,16 +445,13 @@ st.markdown("""
     font-style: italic;
   }
 
-  /* ── Expander overrides ── */
+  /* ── Expanders ── */
   [data-testid="stExpander"] {
     background: #1e293b !important;
     border: 1px solid #334155 !important;
     border-radius: 12px !important;
   }
-  [data-testid="stExpander"] summary {
-    color: #e2e8f0 !important;
-    font-weight: 600 !important;
-  }
+  [data-testid="stExpander"] summary { color: #e2e8f0 !important; font-weight: 600 !important; }
 
   /* ── Progress bar ── */
   [data-testid="stProgressBar"] > div > div {
@@ -467,15 +484,15 @@ st.markdown("""
     box-shadow: 0 6px 20px rgba(99,102,241,0.45) !important;
   }
 
-  /* ── Mobile responsive ── */
+  /* ── Mobile ── */
   @media (max-width: 768px) {
-    .hero-title { font-size: 1.45rem !important; }
-    .hero-subtitle { font-size: 0.85rem !important; }
-    .hero-pill { font-size: 0.72rem !important; padding: 0.25rem 0.6rem !important; }
+    .hero-title { font-size: 1.5rem !important; }
+    .hero-tagline { font-size: 0.88rem !important; }
+    .opening-para { font-size: 0.88rem !important; margin: 1.2rem 0 1.2rem !important; }
     .metric-card .metric-value { font-size: 1.3rem !important; }
-    .empty-state { padding: 2.5rem 1rem !important; }
-    .empty-title { font-size: 1.1rem !important; }
+    .info-col { margin-bottom: 0.75rem; }
     .card { padding: 1rem !important; }
+    .upload-zone-header { padding: 1.2rem 0 0.2rem !important; }
   }
 </style>
 """, unsafe_allow_html=True)
@@ -509,6 +526,7 @@ if "active_step" not in st.session_state:
 # ─────────────────────────────────────────────────────────────────────────────
 
 STEPS = ["Ingest", "Profile", "Analyse", "Report"]
+
 
 def _step_index_from_line(line: str) -> int:
     line_lower = line.lower()
@@ -605,46 +623,52 @@ def _find_session_dir(session_id: str) -> Path | None:
 
 with st.sidebar:
     st.markdown("""
-    <div style="padding:1rem 0 1.2rem; border-bottom:1px solid #334155; margin-bottom:1.4rem;">
-      <div style="font-size:1.5rem; margin-bottom:0.3rem;">📊</div>
-      <div style="font-size:1rem; font-weight:700; color:#f1f5f9;">Agentic Data Analyst</div>
-      <div style="font-size:0.72rem; color:#64748b; margin-top:0.1rem;">Powered by Groq / Llama</div>
+    <div style="padding:1rem 0 1.2rem;border-bottom:1px solid #334155;margin-bottom:1.4rem;">
+      <div style="font-size:1.4rem;margin-bottom:0.3rem;">📊</div>
+      <div style="font-size:0.95rem;font-weight:700;color:#f1f5f9;">Agentic Data Analyst</div>
+      <div style="font-size:0.7rem;color:#64748b;margin-top:0.1rem;">Powered by Groq / Llama</div>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    <div style="text-align:center;padding:0.5rem 0 0.75rem;">
-      <span style="font-size:1.6rem;">☁️</span>
-      <div style="font-size:0.88rem;font-weight:600;color:#e2e8f0;margin:0.25rem 0 0.1rem;">Drop your dataset here</div>
-      <div style="font-size:0.72rem;color:#64748b;">CSV &nbsp;·&nbsp; Excel &nbsp;·&nbsp; Parquet</div>
+    <div style="text-align:center;padding:0.3rem 0 0.6rem;">
+      <span style="font-size:1.4rem;">☁️</span>
+      <div style="font-size:0.85rem;font-weight:600;color:#e2e8f0;margin:0.2rem 0 0.05rem;">Drop your dataset here</div>
+      <div style="font-size:0.7rem;color:#64748b;">CSV &nbsp;·&nbsp; Excel &nbsp;·&nbsp; Parquet</div>
     </div>
     """, unsafe_allow_html=True)
-    uploaded_file = st.file_uploader(
-        "Upload CSV, Excel, or Parquet",
+
+    sb_file = st.file_uploader(
+        "Upload dataset",
         type=["csv", "xlsx", "xls", "parquet"],
         label_visibility="collapsed",
-        help="Drop a file or click to browse",
+        help="Drag and drop, or click to browse",
+        key="sb_file",
+    )
+
+    st.markdown("<div style='height:0.9rem'></div>", unsafe_allow_html=True)
+
+    sb_q = st.text_input(
+        "Business question",
+        placeholder="e.g. What drives customer churn?",
+        key="sb_q",
     )
 
     st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
 
-    st.markdown('<p style="font-size:0.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.4rem;">Analysis Question</p>', unsafe_allow_html=True)
-    business_question = st.text_input(
-        "Question",
-        placeholder="e.g. What drives customer churn?",
-        label_visibility="collapsed",
-    )
-
-    st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
-
-    can_run = bool(uploaded_file and business_question)
+    sb_can_run = bool(sb_file and sb_q and sb_q.strip())
 
     st.markdown('<div class="primary-btn">', unsafe_allow_html=True)
-    run_button = st.button("▶  Run Analysis", use_container_width=True, disabled=not can_run)
+    sb_run_btn = st.button(
+        "▶  Run Analysis",
+        use_container_width=True,
+        disabled=not sb_can_run,
+        key="sb_run",
+    )
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown('<div class="ghost-btn" style="margin-top:0.5rem">', unsafe_allow_html=True)
-    clear_button = st.button("Clear History", use_container_width=True)
+    clear_button = st.button("Clear History", use_container_width=True, key="sb_clear")
     st.markdown("</div>", unsafe_allow_html=True)
 
     if clear_button:
@@ -657,7 +681,11 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("<hr style='border-color:#334155;margin:1.4rem 0 1rem'>", unsafe_allow_html=True)
-    st.markdown('<p style="font-size:0.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.6rem;">Recent Sessions</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<p style="font-size:0.7rem;font-weight:600;color:#64748b;text-transform:uppercase;'
+        'letter-spacing:0.07em;margin-bottom:0.6rem;">Recent Sessions</p>',
+        unsafe_allow_html=True,
+    )
 
     past_sessions = list_past_sessions()
     if past_sessions:
@@ -678,32 +706,31 @@ with st.sidebar:
                     st.session_state.analysis_complete = True
                     st.rerun()
     else:
-        st.markdown('<p style="font-size:0.78rem;color:#475569;">No sessions yet.</p>', unsafe_allow_html=True)
+        st.markdown(
+            '<p style="font-size:0.78rem;color:#475569;">No sessions yet.</p>',
+            unsafe_allow_html=True,
+        )
 
     st.markdown("""
     <div class="cold-start-notice">
       <strong>⚡ Free tier hosting</strong><br>
-      First load may take ~30s to wake from sleep. Hang tight!
+      First load may take around 30 seconds to wake. The sidebar toggle arrow is always
+      available in the top-left if this panel is closed.
     </div>
     """, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Header
+# Hero Band (always visible)
 # ─────────────────────────────────────────────────────────────────────────────
 
 st.markdown("""
-<div class="hero">
-  <div class="hero-title">📊 <span>Agentic</span> Data Analyst</div>
-  <p class="hero-subtitle">
-    Upload any dataset and ask a business question — the AI agent analyses it end-to-end
-    and returns an executive-ready report with visualisations.
+<div class="hero-band">
+  <div class="hero-title">📊 <span class="gr">Agentic</span> Data Analyst</div>
+  <p class="hero-tagline">
+    An autonomous analyst that turns a raw dataset into an executive-ready report
+    in minutes, not days.
   </p>
-  <div class="hero-pills">
-    <span class="hero-pill">✦ Automatic data profiling &amp; quality scoring</span>
-    <span class="hero-pill">✦ Statistical insights &amp; trend detection</span>
-    <span class="hero-pill">✦ Charts &amp; downloadable report</span>
-  </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -713,7 +740,6 @@ st.markdown("""
 # ─────────────────────────────────────────────────────────────────────────────
 
 def render_step_tracker(active: int):
-    """Render 4-step progress indicator. active is 0-based current step index."""
     items = []
     for i, label in enumerate(STEPS):
         if i < active:
@@ -753,7 +779,10 @@ def run_analysis(data_path: Path, question: str):
     agent = st.session_state.agent
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-header"><span>⚙️</span><h2>Running Analysis</h2></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-header"><span>⚙️</span><h2>Running Analysis</h2></div>',
+        unsafe_allow_html=True,
+    )
 
     step_placeholder = st.empty()
     progress_bar = st.progress(0)
@@ -784,7 +813,6 @@ def run_analysis(data_path: Path, question: str):
         )
         time.sleep(0.01)
 
-    # Final state
     with step_placeholder.container():
         render_step_tracker(len(STEPS))
     progress_bar.progress(1.0)
@@ -812,20 +840,19 @@ def display_report(session_path: Path):
         except (json.JSONDecodeError, IOError):
             pass
 
-    # ── Metric cards ────────────────────────────────────────────────────────
-    quality   = state.get("quality_score")
-    iters     = state.get("iterations", state.get("findings_count", "—"))
-    model     = state.get("model", get_settings().analyst_model if hasattr(get_settings(), "analyst_model") else "Claude")
-    created   = state.get("created_at", "")[:16].replace("T", " ") if state.get("created_at") else "—"
+    quality = state.get("quality_score")
+    iters   = state.get("iterations", state.get("findings_count", "—"))
+    model   = state.get("model", get_settings().llm_model)
+    created = state.get("created_at", "")[:16].replace("T", " ") if state.get("created_at") else "—"
 
     q_display = f"{float(quality):.0%}" if quality is not None else "—"
 
     m1, m2, m3, m4 = st.columns(4)
     for col, val, label in [
-        (m1, q_display, "Quality Score"),
-        (m2, str(iters), "Findings"),
-        (m3, str(model)[:12], "Model"),
-        (m4, created, "Run At"),
+        (m1, q_display,       "Quality Score"),
+        (m2, str(iters),      "Findings"),
+        (m3, str(model)[:18], "Model"),
+        (m4, created,         "Run At"),
     ]:
         col.markdown(f"""
         <div class="metric-card">
@@ -836,7 +863,6 @@ def display_report(session_path: Path):
 
     st.markdown("<div style='height:1.5rem'></div>", unsafe_allow_html=True)
 
-    # ── Executive summary ────────────────────────────────────────────────────
     if exec_summary.exists():
         st.markdown('<div class="card">', unsafe_allow_html=True)
         st.markdown("""
@@ -849,7 +875,6 @@ def display_report(session_path: Path):
             st.markdown(f.read())
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ── Charts ───────────────────────────────────────────────────────────────
     charts_dir = session_path / "charts"
     if charts_dir.exists():
         chart_files = sorted(
@@ -857,8 +882,10 @@ def display_report(session_path: Path):
         )
         if chart_files:
             st.markdown('<div class="card">', unsafe_allow_html=True)
-            st.markdown('<div class="section-header"><span>📈</span><h2>Visualisations</h2></div>', unsafe_allow_html=True)
-
+            st.markdown(
+                '<div class="section-header"><span>📈</span><h2>Visualisations</h2></div>',
+                unsafe_allow_html=True,
+            )
             pairs = [chart_files[i:i+2] for i in range(0, len(chart_files), 2)]
             for pair in pairs:
                 cols = st.columns(len(pair))
@@ -870,23 +897,21 @@ def display_report(session_path: Path):
                             with open(chart_file) as f:
                                 st.components.v1.html(f.read(), height=420)
                         st.markdown(
-                            f'<p class="chart-caption">{chart_file.stem.replace("_", " ").title()}</p>',
+                            f'<p class="chart-caption">'
+                            f'{chart_file.stem.replace("_", " ").title()}</p>',
                             unsafe_allow_html=True,
                         )
             st.markdown("</div>", unsafe_allow_html=True)
 
-    # ── Technical appendix ───────────────────────────────────────────────────
     if tech_appendix.exists():
         with st.expander("📋  Technical Appendix"):
             with open(tech_appendix) as f:
                 st.markdown(f.read())
 
-    # ── Session metadata ─────────────────────────────────────────────────────
     if state:
         with st.expander("🗂  Session Metadata"):
             st.json(state)
 
-    # ── Download ─────────────────────────────────────────────────────────────
     st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
     zip_buffer = download_dir_as_zip(session_path)
     st.markdown('<div class="dl-btn">', unsafe_allow_html=True)
@@ -904,16 +929,19 @@ def display_report(session_path: Path):
 # Main Panel
 # ─────────────────────────────────────────────────────────────────────────────
 
-if run_button and uploaded_file and business_question:
+def _run_and_report(uploaded_file, question: str):
     file_path = save_uploaded_file(uploaded_file)
     st.session_state.uploaded_file_path = file_path
-    run_analysis(file_path, business_question)
-
+    run_analysis(file_path, question.strip())
     if st.session_state.analysis_complete and st.session_state.current_session_id:
         session_dir = _find_session_dir(st.session_state.current_session_id)
         if session_dir:
             st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
             display_report(session_dir)
+
+
+if sb_run_btn and sb_can_run:
+    _run_and_report(sb_file, sb_q)
 
 elif st.session_state.current_session_id:
     session_dir = _find_session_dir(st.session_state.current_session_id)
@@ -923,21 +951,166 @@ elif st.session_state.current_session_id:
         st.warning("Session not found.")
 
 else:
-    # ── Empty state ──────────────────────────────────────────────────────────
+    # ── Landing page ─────────────────────────────────────────────────────────
+
     st.markdown("""
-    <div class="empty-state">
-      <span class="empty-icon">🔍</span>
-      <div class="empty-title">Upload a dataset to begin</div>
-      <div class="empty-subtitle">
-        Drop any CSV, Excel, or Parquet file in the sidebar and ask a question.<br>
-        The agent will analyse it end-to-end and return an executive-ready report.
-      </div>
-      <div class="feature-list">
-        <div class="feature-item"><div class="feature-dot"></div>Automatic data quality checks &amp; profiling</div>
-        <div class="feature-item"><div class="feature-dot"></div>Statistical rigour — correlation, outliers, trends</div>
-        <div class="feature-item"><div class="feature-dot"></div>Visualisations generated automatically</div>
-        <div class="feature-item"><div class="feature-dot"></div>Executive summary + technical appendix</div>
-        <div class="feature-item"><div class="feature-dot"></div>Full report download as ZIP</div>
-      </div>
+    <p class="opening-para">
+      Analysts spend most of their time on repetitive groundwork before any real insight
+      appears. Cleaning data, profiling it, checking quality, running the same exploratory
+      statistics, and building the same charts from scratch can take hours or days, and
+      typically needs someone who knows Python and statistics. For a small team or a
+      non-technical manager, getting from a raw CSV to a trustworthy summary is a real
+      bottleneck. This tool is designed to remove it. Drop in a dataset, ask a business
+      question in plain English, and it can return a structured, quality-checked,
+      visualised report automatically.
+    </p>
+    """, unsafe_allow_html=True)
+
+    c1, c2, c3 = st.columns(3, gap="medium")
+
+    with c1:
+        st.markdown("""
+        <div class="info-col">
+          <div class="section-label">What it does</div>
+          <ul class="check-list">
+            <li class="check-item">
+              <span class="tick">✓</span>
+              Profiles any CSV, Excel or Parquet file automatically: row counts, column types,
+              missing values, duplicates, and distributions
+            </li>
+            <li class="check-item">
+              <span class="tick">✓</span>
+              Runs data quality checks and flags issues before any analysis is trusted
+            </li>
+            <li class="check-item">
+              <span class="tick">✓</span>
+              Performs standard exploratory work: correlations, outliers, trends,
+              and segment comparisons
+            </li>
+            <li class="check-item">
+              <span class="tick">✓</span>
+              Generates clear visualisations automatically, no chart-building by hand
+            </li>
+            <li class="check-item">
+              <span class="tick">✓</span>
+              Answers a plain-English business question about the data
+            </li>
+            <li class="check-item">
+              <span class="tick">✓</span>
+              Produces a downloadable, executive-ready report
+            </li>
+          </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown("""
+        <div class="info-col">
+          <div class="section-label">The impact it can create</div>
+          <ul class="check-list">
+            <li class="check-item">
+              <span class="dot"></span>
+              Designed to compress hours of manual exploratory analysis into minutes
+            </li>
+            <li class="check-item">
+              <span class="dot"></span>
+              Can let a non-technical user get a trustworthy data summary without
+              writing a line of code
+            </li>
+            <li class="check-item">
+              <span class="dot"></span>
+              Frees skilled analysts from repetitive groundwork so they can focus
+              on decisions and recommendations
+            </li>
+            <li class="check-item">
+              <span class="dot"></span>
+              Reduces the risk of acting on unchecked or poor-quality data
+            </li>
+          </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c3:
+        st.markdown("""
+        <div class="info-col">
+          <div class="section-label">Who it is for</div>
+          <ul class="check-list">
+            <li class="check-item">
+              <span class="dot"></span>
+              Data analysts who want to skip the repetitive first-pass work
+            </li>
+            <li class="check-item">
+              <span class="dot"></span>
+              Small teams and founders with data but no dedicated analyst
+            </li>
+            <li class="check-item">
+              <span class="dot"></span>
+              Managers and ops or finance staff who need a quick, trustworthy
+              read on a dataset
+            </li>
+            <li class="check-item">
+              <span class="dot"></span>
+              Anyone who needs a fast, defensible summary before a decision
+            </li>
+          </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="outcomes-bar">
+      Built around the outcomes businesses actually value: faster time-to-insight,
+      lower analyst cost per report, fewer decisions made on bad data, and consistent,
+      repeatable reporting.
     </div>
     """, unsafe_allow_html=True)
+
+    # ── Main-body upload zone ─────────────────────────────────────────────────
+    st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+
+    _, upload_col, _ = st.columns([1, 2, 1])
+    with upload_col:
+        st.markdown("""
+        <div class="upload-zone-header">
+          <span class="upload-zone-icon">☁️</span>
+          <div class="upload-zone-title">Drop your dataset here</div>
+          <div class="upload-zone-hint">CSV &nbsp;·&nbsp; Excel (.xlsx, .xls) &nbsp;·&nbsp; Parquet</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        main_file = st.file_uploader(
+            "Choose your file",
+            type=["csv", "xlsx", "xls", "parquet"],
+            key="main_file",
+            help="Drag and drop, or click to browse",
+        )
+
+        st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+
+        main_q = st.text_input(
+            "Business question",
+            placeholder="e.g. What drives customer churn?",
+            key="main_q",
+        )
+
+        main_can_run = bool(main_file and main_q and main_q.strip())
+
+        st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
+        st.markdown('<div class="primary-btn">', unsafe_allow_html=True)
+        main_run_btn = st.button(
+            "▶  Run Analysis",
+            use_container_width=True,
+            disabled=not main_can_run,
+            key="main_run",
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class="cold-start-notice">
+          <strong>⚡ Hosted on a free tier</strong> — the first load may take around
+          30 seconds to wake. If the sidebar is closed, tap the arrow in the top-left
+          corner to reopen it.
+        </div>
+        """, unsafe_allow_html=True)
+
+    if main_run_btn and main_can_run:
+        _run_and_report(main_file, main_q)
