@@ -40,7 +40,7 @@ st.set_page_config(
 st.markdown("""
 <style>
   /* ── Imports ── */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
   /* ── Reset & Base ── */
   html, body, [class*="css"] {
@@ -48,10 +48,28 @@ st.markdown("""
     line-height: 1.6;
   }
 
-  /* ── Hide Streamlit chrome ── */
-  #MainMenu, footer, header { visibility: hidden; }
+  /* ── Hide Streamlit chrome — preserve sidebar toggle ── */
+  /* Do NOT hide `header` — it contains the sidebar collapse/expand button */
+  #MainMenu { visibility: hidden; }
+  footer { visibility: hidden; }
   .stDeployButton { display: none; }
   div[data-testid="stToolbar"] { display: none; }
+  [data-testid="stHeader"] { background: transparent !important; border: none !important; }
+  [data-testid="stDecoration"] { display: none !important; }
+
+  /* ── Sidebar toggle button — keep on-brand when sidebar is collapsed ── */
+  [data-testid="stSidebarCollapsedControl"] {
+    visibility: visible !important;
+    background: #1e293b !important;
+    border-right: 1px solid #334155 !important;
+  }
+  [data-testid="stSidebarCollapsedControl"] button {
+    color: #94a3b8 !important;
+  }
+  [data-testid="stSidebarCollapsedControl"] button:hover {
+    color: #f1f5f9 !important;
+    background: rgba(99,102,241,0.12) !important;
+  }
 
   /* ── App background ── */
   .stApp {
@@ -117,7 +135,6 @@ st.markdown("""
     transition: all 0.18s ease !important;
     border: none !important;
   }
-  /* Primary run button */
   .primary-btn > button {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
     color: #ffffff !important;
@@ -134,7 +151,6 @@ st.markdown("""
     transform: none !important;
     color: #64748b !important;
   }
-  /* Ghost clear button */
   .ghost-btn > button {
     background: transparent !important;
     color: #64748b !important;
@@ -172,11 +188,69 @@ st.markdown("""
   .metric-card .metric-label {
     font-size: 0.72rem;
     font-weight: 600;
-    color: #64748b;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.07em;
     margin-top: 0.3rem;
   }
+
+  /* ── Hero section ── */
+  .hero {
+    padding: 2rem 0 1.5rem;
+    border-bottom: 1px solid #334155;
+    margin-bottom: 1.5rem;
+  }
+  .hero-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #f1f5f9;
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .hero-title span {
+    background: linear-gradient(135deg, #818cf8, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-subtitle {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin: 0 0 1.2rem;
+    max-width: 580px;
+  }
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(99,102,241,0.12);
+    border: 1px solid rgba(99,102,241,0.28);
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #a5b4fc;
+    white-space: nowrap;
+  }
+
+  /* ── Cold-start notice ── */
+  .cold-start-notice {
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.18);
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    line-height: 1.55;
+    margin-top: 1.2rem;
+  }
+  .cold-start-notice strong { color: #f59e0b; font-weight: 600; }
 
   /* ── Session cards in sidebar ── */
   .session-card {
@@ -203,7 +277,7 @@ st.markdown("""
   }
   .session-meta {
     font-size: 0.7rem;
-    color: #64748b;
+    color: #94a3b8;
   }
 
   /* ── Badges ── */
@@ -234,7 +308,7 @@ st.markdown("""
     line-height: 1.7;
   }
   .terminal .log-line { margin: 0; padding: 0.05rem 0; }
-  .terminal .log-line.info  { color: #6366f1; }
+  .terminal .log-line.info  { color: #818cf8; }
   .terminal .log-line.ok    { color: #10b981; }
   .terminal .log-line.warn  { color: #f59e0b; }
   .terminal .log-line.err   { color: #ef4444; }
@@ -270,7 +344,7 @@ st.markdown("""
   .step-label {
     font-size: 0.68rem;
     font-weight: 600;
-    color: #64748b;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-top: 0.4rem;
@@ -303,10 +377,10 @@ st.markdown("""
   /* ── Empty state ── */
   .empty-state {
     text-align: center;
-    padding: 5rem 2rem;
+    padding: 4rem 2rem;
   }
   .empty-icon {
-    font-size: 4rem;
+    font-size: 3.5rem;
     margin-bottom: 1.2rem;
     display: block;
   }
@@ -318,7 +392,7 @@ st.markdown("""
   }
   .empty-subtitle {
     font-size: 0.9rem;
-    color: #64748b;
+    color: #94a3b8;
     margin-bottom: 2rem;
   }
   .feature-list {
@@ -345,7 +419,7 @@ st.markdown("""
   /* ── Chart grid ── */
   .chart-caption {
     font-size: 0.72rem;
-    color: #64748b;
+    color: #94a3b8;
     text-align: center;
     margin-top: 0.4rem;
     font-style: italic;
@@ -391,6 +465,17 @@ st.markdown("""
   .dl-btn > button:hover {
     transform: translateY(-1px) !important;
     box-shadow: 0 6px 20px rgba(99,102,241,0.45) !important;
+  }
+
+  /* ── Mobile responsive ── */
+  @media (max-width: 768px) {
+    .hero-title { font-size: 1.45rem !important; }
+    .hero-subtitle { font-size: 0.85rem !important; }
+    .hero-pill { font-size: 0.72rem !important; padding: 0.25rem 0.6rem !important; }
+    .metric-card .metric-value { font-size: 1.3rem !important; }
+    .empty-state { padding: 2.5rem 1rem !important; }
+    .empty-title { font-size: 1.1rem !important; }
+    .card { padding: 1rem !important; }
   }
 </style>
 """, unsafe_allow_html=True)
@@ -523,19 +608,23 @@ with st.sidebar:
     <div style="padding:1rem 0 1.2rem; border-bottom:1px solid #334155; margin-bottom:1.4rem;">
       <div style="font-size:1.5rem; margin-bottom:0.3rem;">📊</div>
       <div style="font-size:1rem; font-weight:700; color:#f1f5f9;">Agentic Data Analyst</div>
-      <div style="font-size:0.72rem; color:#64748b; margin-top:0.1rem;">Powered by Claude</div>
+      <div style="font-size:0.72rem; color:#64748b; margin-top:0.1rem;">Powered by Groq / Llama</div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<p style="font-size:0.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.4rem;">Dataset</p>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="text-align:center;padding:0.5rem 0 0.75rem;">
+      <span style="font-size:1.6rem;">☁️</span>
+      <div style="font-size:0.88rem;font-weight:600;color:#e2e8f0;margin:0.25rem 0 0.1rem;">Drop your dataset here</div>
+      <div style="font-size:0.72rem;color:#64748b;">CSV &nbsp;·&nbsp; Excel &nbsp;·&nbsp; Parquet</div>
+    </div>
+    """, unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
         "Upload CSV, Excel, or Parquet",
         type=["csv", "xlsx", "xls", "parquet"],
         label_visibility="collapsed",
         help="Drop a file or click to browse",
     )
-    if not uploaded_file:
-        st.markdown('<p style="font-size:0.73rem;color:#475569;margin-top:-0.4rem;">CSV · Excel · Parquet</p>', unsafe_allow_html=True)
 
     st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
 
@@ -591,25 +680,30 @@ with st.sidebar:
     else:
         st.markdown('<p style="font-size:0.78rem;color:#475569;">No sessions yet.</p>', unsafe_allow_html=True)
 
+    st.markdown("""
+    <div class="cold-start-notice">
+      <strong>⚡ Free tier hosting</strong><br>
+      First load may take ~30s to wake from sleep. Hang tight!
+    </div>
+    """, unsafe_allow_html=True)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Header
 # ─────────────────────────────────────────────────────────────────────────────
 
 st.markdown("""
-<div style="padding:2rem 0 1.2rem;">
-  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
-    <span style="font-size:2.2rem;">📊</span>
-    <div>
-      <h1 style="margin:0;font-size:1.75rem;font-weight:800;color:#f1f5f9;line-height:1.2;">
-        Agentic Data Analyst
-      </h1>
-      <p style="margin:0;font-size:0.875rem;color:#64748b;margin-top:0.2rem;">
-        Autonomous AI-powered data analysis &nbsp;·&nbsp; Powered by Claude
-      </p>
-    </div>
+<div class="hero">
+  <div class="hero-title">📊 <span>Agentic</span> Data Analyst</div>
+  <p class="hero-subtitle">
+    Upload any dataset and ask a business question — the AI agent analyses it end-to-end
+    and returns an executive-ready report with visualisations.
+  </p>
+  <div class="hero-pills">
+    <span class="hero-pill">✦ Automatic data profiling &amp; quality scoring</span>
+    <span class="hero-pill">✦ Statistical insights &amp; trend detection</span>
+    <span class="hero-pill">✦ Charts &amp; downloadable report</span>
   </div>
-  <hr style="border:none;border-top:1px solid #334155;margin-top:1rem;">
 </div>
 """, unsafe_allow_html=True)
 
